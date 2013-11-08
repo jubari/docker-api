@@ -122,7 +122,9 @@ class Docker::Container
   # Create a new Container.
   def self.create(opts = {}, conn = Docker.connection)
     instance = new(conn)
-    resp = conn.post('/containers/create', {}, :body => opts.to_json)
+    container_name = opts['name']
+    opts.delete('name') if opts['name']
+    resp = conn.post("/containers/create#{('?name=' << container_name) if container_name}", {}, :body => opts.to_json)
     if (instance.id = Docker::Util.parse_json(resp)['Id']).nil?
       raise UnexpectedResponseError, 'Create response did not contain an Id'
     else
